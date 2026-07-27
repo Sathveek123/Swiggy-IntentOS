@@ -134,7 +134,7 @@ export const LifeModules: React.FC = () => {
         <div className="pt-2 mb-5">
           <div className="inline-flex items-center gap-1.5 bg-[#FC8019] text-white text-xs font-extrabold px-3.5 py-1 rounded-full mb-2.5 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 fill-white" />
-            <span>15 Human Behavior Life Modules</span>
+            <span>The 6 Core Life Modules</span>
           </div>
           <h1 className="text-2xl font-extrabold text-[#1C1C1E] tracking-tight">
             Swiggy LifeOS Intent Hub 🧩

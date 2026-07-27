@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Mic, Sparkles, Terminal, ArrowRight, Bot, CheckCircle2, ArrowLeft, Star, Clock } from 'lucide-react';
 import { sendAgentChatMessage, AgentChatMessage } from '../services/backendClient';
+import { resolveUserSituation } from '../services/intentEngine';
 import { useLifeOSStore } from '../store/useLifeOSStore';
 import { PlanData, IMAGES } from '../data/mockData';
 
@@ -71,16 +72,18 @@ export const AgentChat: React.FC = () => {
         };
         setMessages(prev => [...prev, assistantTurn]);
       } else {
+        const dynamicPlan = await resolveUserSituation(textToSend);
         const mockTurn: ChatTurn = {
           id: `ast_${Date.now()}`,
           role: 'assistant',
-          content: `Connected to Swiggy MCP Server for '${textToSend}'. Executed tools and generated a high-value LifePlan:`,
+          content: `Coordinated Swiggy Food, Instamart, and Dineout MCP tools for '${textToSend}'. Generated your custom LifePlan:`,
           toolsExecuted: [
             { tool: "get_addresses", server: "swiggy_food_mcp", status: "SUCCESS", result: "Indiranagar, KA" },
-            { tool: "search_restaurants", server: "swiggy_food_mcp", status: "SUCCESS", result: "Paradise Biryani" },
-            { tool: "search_products", server: "swiggy_im_mcp", status: "SUCCESS", result: "Pepsi 500ml (3 pcs)" },
+            { tool: "search_restaurants", server: "swiggy_food_mcp", status: "SUCCESS", result: dynamicPlan.food.restaurant },
+            { tool: "search_products", server: "swiggy_im_mcp", status: "SUCCESS", result: dynamicPlan.instamart.items[0]?.name || "Essentials" },
             { tool: "get_available_slots", server: "swiggy_dineout_mcp", status: "SUCCESS", result: "7:30 PM Slot" }
-          ]
+          ],
+          planWidget: dynamicPlan
         };
         setMessages(prev => [...prev, mockTurn]);
       }

@@ -3,7 +3,9 @@ import { fetchLifePlan } from './backendClient';
 
 export async function resolveUserSituation(prompt: string): Promise<PlanData> {
   const cleanPrompt = prompt.trim();
+  const lower = cleanPrompt.toLowerCase();
 
+  // 1. Try FastAPI backend live agent if available
   try {
     const livePlan = await fetchLifePlan(cleanPrompt);
     if (livePlan && livePlan.food && livePlan.food.items) {
@@ -24,33 +26,160 @@ export async function resolveUserSituation(prompt: string): Promise<PlanData> {
       };
     }
   } catch (e) {
-    console.warn("Backend API unavailable, using local dynamic intent engine:", e);
+    console.warn("Backend API unavailable, using dynamic local intent engine:", e);
   }
 
-  // Dynamic Local Intent Parsing Engine with High-Res Images
-  const lower = cleanPrompt.toLowerCase();
-  
-  if (lower.includes("sick") || lower.includes("headache") || lower.includes("cold") || lower.includes("soup")) {
+  // 2. Extract Budget from prompt dynamically
+  const budgetMatch = cleanPrompt.match(/(?:budget|under|rs\.?|rupees?|₹)\s*:?\s*₹?\s*(\d+)/i) || cleanPrompt.match(/(\d+)\s*(?:rupees?|rs|budget|₹)/i);
+  let parsedBudget = budgetMatch ? parseInt(budgetMatch[1]) : 800;
+  if (parsedBudget < 50) parsedBudget = 300;
+
+  // 3. Handle Stray Dogs / Community Feed Intent
+  if (lower.includes("dog") || lower.includes("stray") || lower.includes("animal")) {
+    const targetCount = 50;
+    const foodCost = Math.min(6500, Math.round(parsedBudget * 0.8));
+    const instamartCost = Math.min(1200, Math.round(parsedBudget * 0.15));
+    const totalEst = foodCost + instamartCost;
+
     return {
       situation: cleanPrompt,
-      budget: 300,
+      budget: parsedBudget,
       food: {
-        restaurant: "Healthy Soup & Healing Bowls",
+        restaurant: "Community Kitchen & Animal Relief",
+        rating: 4.9,
+        image: IMAGES.thali,
+        deliveryTime: "30 mins",
+        items: [
+          { id: "f_dog_1", name: `Bulk Chicken & Rice Meal Trays (${targetCount} packs)`, qty: 1, price: foodCost, category: "food", image: IMAGES.thali, tag: "50 Meals Bulk Pack 🐾" }
+        ],
+        total: foodCost
+      },
+      instamart: {
+        deliveryTime: "12 mins",
+        items: [
+          { id: "g_dog_1", name: "Pedigree & Meat Treat Packs (5s)", qty: 2, price: Math.round(instamartCost / 2), category: "instamart", image: IMAGES.chips, tag: "Animal Nutrition 🐕" }
+        ],
+        total: instamartCost
+      },
+      dineout: {
+        restaurant: "Community Center Garden",
         rating: 4.8,
-        image: IMAGES.soup,
+        image: IMAGES.fineDining1,
+        tableFor: 2,
+        slot: "5:00 PM",
+        avgCost: 0
+      },
+      savings: 450,
+      totalEstimate: totalEst
+    };
+  }
+
+  // 4. Handle Pancake Intent
+  if (lower.includes("pancake") || lower.includes("pan cake") || lower.includes("waffle")) {
+    const foodCost = 210;
+    const instamartCost = 45;
+    const totalEst = foodCost + instamartCost;
+
+    return {
+      situation: cleanPrompt,
+      budget: parsedBudget,
+      food: {
+        restaurant: "The Pancake Story & Waffle House",
+        rating: 4.8,
+        image: IMAGES.pizza,
         deliveryTime: "18 mins",
         items: [
-          { id: "f_soup_1", name: "Hot Manchow Soup", qty: 1, price: 120, category: "food", image: IMAGES.soup, tag: "Healing Hot 🥣" },
-          { id: "f_tea_1", name: "Adrak Ginger Herbal Tea", qty: 1, price: 50, category: "food", image: IMAGES.gingerTea, tag: "Immunitea ☕" }
+          { id: "f_pan_1", name: "Fluffy Maple Syrup Pancakes (3pcs)", qty: 1, price: 150, category: "food", image: IMAGES.pizza, tag: "Top Rated 🥞" },
+          { id: "f_pan_2", name: "Nutella Chocolate Waffle Bite", qty: 1, price: 60, category: "food", image: IMAGES.pizza, tag: "Fresh Baked 🍫" }
         ],
-        total: 170
+        total: foodCost
+      },
+      instamart: {
+        deliveryTime: "10 mins",
+        items: [
+          { id: "g_milk_1", name: "Amul Fresh Whipped Cream 200ml", qty: 1, price: 45, category: "instamart", image: IMAGES.pepsi, tag: "Fresh Cold 🥛" }
+        ],
+        total: instamartCost
+      },
+      dineout: {
+        restaurant: "The Waffle & Pancake Cafe",
+        rating: 4.7,
+        image: IMAGES.fineDining2,
+        tableFor: 2,
+        slot: "4:30 PM",
+        avgCost: 300
+      },
+      savings: 35,
+      totalEstimate: totalEst
+    };
+  }
+
+  // 5. Handle Health / Protein Intent
+  if (lower.includes("gym") || lower.includes("protein") || lower.includes("workout") || lower.includes("health")) {
+    const foodCost = 320;
+    const instamartCost = 110;
+    const totalEst = foodCost + instamartCost;
+
+    return {
+      situation: cleanPrompt,
+      budget: parsedBudget,
+      food: {
+        restaurant: "FitBites Protein Studio",
+        rating: 4.9,
+        image: IMAGES.proteinBowl,
+        deliveryTime: "20 mins",
+        items: [
+          { id: "f_fit_1", name: "Grilled Chicken Protein Bowl", qty: 1, price: 240, category: "food", image: IMAGES.proteinBowl, tag: "35g Protein 💪" },
+          { id: "f_fit_2", name: "Cold Brew Whey Protein Shake", qty: 1, price: 80, category: "food", image: IMAGES.coffee, tag: "Zero Sugar 🥤" }
+        ],
+        total: foodCost
+      },
+      instamart: {
+        deliveryTime: "10 mins",
+        items: [
+          { id: "g_yogurt_1", name: "Epigamia Greek Yogurt Blueberry", qty: 2, price: 55, category: "instamart", image: IMAGES.pepsi, tag: "15g Protein 🥣" }
+        ],
+        total: instamartCost
+      },
+      dineout: {
+        restaurant: "The Organic Health Cafe",
+        rating: 4.8,
+        image: IMAGES.fineDining3,
+        tableFor: 1,
+        slot: "7:00 PM",
+        avgCost: 400
+      },
+      totalEstimate: totalEst,
+      savings: 65
+    };
+  }
+
+  // 6. Handle Sick / Healing Soup Intent
+  if (lower.includes("sick") || lower.includes("cold") || lower.includes("soup") || lower.includes("fever")) {
+    const foodCost = 150;
+    const instamartCost = 35;
+    const totalEst = foodCost + instamartCost;
+
+    return {
+      situation: cleanPrompt,
+      budget: parsedBudget,
+      food: {
+        restaurant: "Healthy Soup & Immunity Kitchen",
+        rating: 4.8,
+        image: IMAGES.soup,
+        deliveryTime: "16 mins",
+        items: [
+          { id: "f_soup_1", name: "Hot Chicken Manchow Soup", qty: 1, price: 110, category: "food", image: IMAGES.soup, tag: "Immunity Hot 🥣" },
+          { id: "f_tea_1", name: "Adrak Herbal Ginger Tea", qty: 1, price: 40, category: "food", image: IMAGES.gingerTea, tag: "Healing Tea ☕" }
+        ],
+        total: foodCost
       },
       instamart: {
         deliveryTime: "8 mins",
         items: [
-          { id: "g_strep_1", name: "Strepsils Honey Lemon", qty: 1, price: 30, category: "instamart", image: IMAGES.strepsils, tag: "Sore Throat 🍋" }
+          { id: "g_strep_1", name: "Strepsils Orange Vitamin C", qty: 1, price: 35, category: "instamart", image: IMAGES.strepsils, tag: "Sore Throat 🍊" }
         ],
-        total: 30
+        total: instamartCost
       },
       dineout: {
         restaurant: "Wellness Tea Lounge",
@@ -60,115 +189,50 @@ export async function resolveUserSituation(prompt: string): Promise<PlanData> {
         slot: "6:00 PM",
         avgCost: 200
       },
-      totalEstimate: 200,
-      savings: 45
+      totalEstimate: totalEst,
+      savings: 40
     };
   }
 
-  if (lower.includes("gym") || lower.includes("protein") || lower.includes("workout")) {
-    return {
-      situation: cleanPrompt,
-      budget: 600,
-      food: {
-        restaurant: "FitBites Protein Studio",
-        rating: 4.9,
-        image: IMAGES.proteinBowl,
-        deliveryTime: "20 mins",
-        items: [
-          { id: "f_fit_1", name: "Grilled Chicken Protein Bowl", qty: 1, price: 280, category: "food", image: IMAGES.proteinBowl, tag: "35g Protein 💪" },
-          { id: "f_shake_1", name: "Whey Protein Shake", qty: 1, price: 140, category: "food", image: IMAGES.shake, tag: "Zero Sugar 🥤" }
-        ],
-        total: 420
-      },
-      instamart: {
-        deliveryTime: "10 mins",
-        items: [
-          { id: "g_yogurt_1", name: "Greek Yogurt Blueberry", qty: 2, price: 60, category: "instamart", image: IMAGES.greekYogurt, tag: "15g Protein 🥣" }
-        ],
-        total: 120
-      },
-      dineout: {
-        restaurant: "The Organic Protein Cafe",
-        rating: 4.8,
-        image: IMAGES.fineDining3,
-        tableFor: 1,
-        slot: "8:00 PM",
-        avgCost: 500
-      },
-      totalEstimate: 540,
-      savings: 90
-    };
-  }
+  // 7. General Dynamic Intent Engine (Fits any prompt & requested budget)
+  const item1Price = Math.min(180, Math.round(parsedBudget * 0.45));
+  const item2Price = Math.min(110, Math.round(parsedBudget * 0.25));
+  const instamartPrice = Math.min(60, Math.round(parsedBudget * 0.15));
 
-  if (lower.includes("exam") || lower.includes("study") || lower.includes("midnight")) {
-    return {
-      situation: cleanPrompt,
-      budget: 400,
-      food: {
-        restaurant: "24/7 Midnight Cafe & Coffee",
-        rating: 4.7,
-        image: IMAGES.coffee,
-        deliveryTime: "15 mins",
-        items: [
-          { id: "f_coffee_1", name: "Cold Brew Espresso", qty: 2, price: 140, category: "food", image: IMAGES.coffee, tag: "High Caffeine ⚡" },
-          { id: "f_wrap_1", name: "Paneer Tikka Wrap", qty: 1, price: 110, category: "food", image: IMAGES.paneerTikka, tag: "Hot & Cheesy 🧀" }
-        ],
-        total: 250
-      },
-      instamart: {
-        deliveryTime: "10 mins",
-        items: [
-          { id: "g_monster_1", name: "Monster Energy 350ml", qty: 1, price: 110, category: "instamart", image: IMAGES.pepsi, tag: "Energy Boost 🚀" }
-        ],
-        total: 110
-      },
-      dineout: {
-        restaurant: "Study Lounge & Coffee Bar",
-        rating: 4.6,
-        image: IMAGES.fineDining1,
-        tableFor: 1,
-        slot: "11:00 PM",
-        avgCost: 350
-      },
-      totalEstimate: 360,
-      savings: 60
-    };
-  }
+  const mainDishName = cleanPrompt.length > 2 ? `${cleanPrompt.slice(0, 24)} Special Meal` : "Hyderabadi Biryani Combo";
+  const foodTotal = item1Price + item2Price;
+  const totalEst = foodTotal + instamartPrice;
 
-  // General fallback
   return {
     situation: cleanPrompt,
-    budget: 800,
+    budget: parsedBudget,
     food: {
-      restaurant: "Paradise Biryani",
-      rating: 4.5,
+      restaurant: "Swiggy Select Kitchen",
+      rating: 4.8,
       image: IMAGES.biryani,
-      deliveryTime: "28 mins",
+      deliveryTime: "22 mins",
       items: [
-        { id: "f_1", name: "Chicken Biryani", qty: 2, price: 180, category: "food", image: IMAGES.biryani, tag: "Bestseller 🔥" },
-        { id: "f_2", name: "Veg Biryani", qty: 1, price: 130, category: "food", image: IMAGES.vegBiryani, tag: "Must Try 🌟" },
-        { id: "f_3", name: "Raita", qty: 2, price: 20, category: "food", image: IMAGES.raita }
+        { id: "f_gen_1", name: mainDishName, qty: 1, price: item1Price, category: "food", image: IMAGES.biryani, tag: "LifeOS Choice ✨" },
+        { id: "f_gen_2", name: "Crispy Garlic Bread / Side Dish", qty: 1, price: item2Price, category: "food", image: IMAGES.dosa, tag: "Chef Special 🌟" }
       ],
-      total: 530
+      total: foodTotal
     },
     instamart: {
-      deliveryTime: "12 mins",
+      deliveryTime: "10 mins",
       items: [
-        { id: "g_1", name: "Pepsi 500ml", qty: 3, price: 30, category: "instamart", image: IMAGES.pepsi, tag: "Chilled ❄️" },
-        { id: "g_2", name: "Paper Plates Pack", price: 40, qty: 1, category: "instamart", image: IMAGES.plates },
-        { id: "g_3", name: "Lays Classic", price: 25, qty: 2, category: "instamart", image: IMAGES.chips }
+        { id: "g_gen_1", name: "Chilled Beverage 500ml", qty: 1, price: instamartPrice, category: "instamart", image: IMAGES.pepsi, tag: "10-Min Fast ⚡" }
       ],
-      total: 180
+      total: instamartPrice
     },
     dineout: {
-      restaurant: "The Biryani House",
-      rating: 4.6,
+      restaurant: "Swiggy Gourmet Bistro",
+      rating: 4.7,
       image: IMAGES.fineDining1,
-      tableFor: 4,
-      slot: "7:30 PM",
-      avgCost: 650
+      tableFor: 2,
+      slot: "8:00 PM",
+      avgCost: 450
     },
-    totalEstimate: 710,
-    savings: 120
+    totalEstimate: totalEst,
+    savings: Math.round(totalEst * 0.2)
   };
 }
