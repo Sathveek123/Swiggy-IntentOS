@@ -16,7 +16,6 @@ export const Home: React.FC = () => {
   const { situationText, setSituation, selectedChip, setChip, isVoiceActive, toggleVoice } = useLifeOSStore();
   const [isRecording, setIsRecording] = useState(false);
   const [backendOnline, setBackendOnline] = useState(false);
-  const [activeServiceFilter, setActiveServiceFilter] = useState<'food' | 'instamart' | 'dineout' | 'all'>('all');
 
   useEffect(() => {
     checkBackendHealth().then(setBackendOnline);
@@ -151,41 +150,53 @@ export const Home: React.FC = () => {
             LifeOS understands your life situation before selecting the service.
           </p>
 
-          {/* Service Context Selector (Food / Instamart / Dineout / AI Chat) */}
+          {/* Service Context Selector — each button triggers real AI intent plan */}
           <div className="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-white/10">
             <button
-              onClick={() => setActiveServiceFilter(activeServiceFilter === 'food' ? 'all' : 'food')}
-              className={`flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl ${activeServiceFilter === 'food' ? 'bg-[#FC8019]/30 ring-1 ring-[#FC8019]' : ''}`}
+              onClick={() => {
+                setSituation("I want to order the best food delivery right now — surprise me with something great");
+                navigate('/thinking');
+              }}
+              className="flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl hover:bg-[#FC8019]/20 active:scale-95"
             >
               <div className="w-10 h-10 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-[#FC8019] group-hover:bg-[#FC8019] group-hover:text-white transition-all">
-                <Utensils className="w-4.5 h-4.5" />
+                <Utensils className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-bold text-[#E5E7EB]">Food</span>
             </button>
 
             <button
-              onClick={() => setActiveServiceFilter(activeServiceFilter === 'instamart' ? 'all' : 'instamart')}
-              className={`flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl ${activeServiceFilter === 'instamart' ? 'bg-[#22C55E]/30 ring-1 ring-[#22C55E]' : ''}`}
+              onClick={() => {
+                setSituation("I need quick grocery delivery from Instamart — get my household essentials delivered in 10 minutes");
+                navigate('/thinking');
+              }}
+              className="flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl hover:bg-[#22C55E]/20 active:scale-95"
             >
               <div className="w-10 h-10 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-[#22C55E] group-hover:bg-[#22C55E] group-hover:text-white transition-all">
-                <ShoppingBag className="w-4.5 h-4.5" />
+                <ShoppingBag className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-bold text-[#E5E7EB]">Instamart</span>
             </button>
 
             <button
-              onClick={() => setActiveServiceFilter(activeServiceFilter === 'dineout' ? 'all' : 'dineout')}
-              className={`flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl ${activeServiceFilter === 'dineout' ? 'bg-[#6366F1]/30 ring-1 ring-[#6366F1]' : ''}`}
+              onClick={() => {
+                setSituation("Book me a great restaurant table for dining out tonight — 2 people, good ambience");
+                navigate('/thinking');
+              }}
+              className="flex flex-col items-center gap-1 text-center group cursor-pointer transition-all p-1 rounded-xl hover:bg-[#6366F1]/20 active:scale-95"
             >
               <div className="w-10 h-10 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-[#6366F1] group-hover:bg-[#6366F1] group-hover:text-white transition-all">
-                <MapPin className="w-4.5 h-4.5" />
+                <MapPin className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-bold text-[#E5E7EB]">Dineout</span>
             </button>
 
-            <button onClick={() => navigate('/agent')} className="flex flex-col items-center gap-1 text-center group cursor-pointer p-1">
+            <button
+              onClick={() => navigate('/agent')}
+              className="flex flex-col items-center gap-1 text-center group cursor-pointer p-1 rounded-xl hover:bg-[#EC4899]/20 active:scale-95 transition-all"
+            >
               <div className="w-10 h-10 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-[#EC4899] group-hover:bg-[#EC4899] group-hover:text-white transition-all">
-                <MessageSquare className="w-4.5 h-4.5" />
+                <MessageSquare className="w-4 h-4" />
               </div>
               <span className="text-[10px] font-bold text-[#E5E7EB]">AI Chat</span>
             </button>
@@ -290,13 +301,13 @@ export const Home: React.FC = () => {
         <div className="mt-5">
           <div className="flex items-center justify-between mb-2.5">
             <span className="text-xs font-extrabold text-[#1C1C1E] tracking-tight">
-              {activeServiceFilter === 'all' ? 'Featured LifeOS Dishes 🔥' : `${activeServiceFilter.toUpperCase()} Recommendations`}
+              Featured LifeOS Dishes 🔥
             </span>
             <span className="text-[11px] text-[#FC8019] font-bold">See All</span>
           </div>
 
           <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-            {(serviceDishes[activeServiceFilter] || serviceDishes.all).map((dish, i) => (
+            {serviceDishes.all.map((dish: { name: string; rating: string; time: string; price: string; image: string; tag: string; route?: string }, i: number) => (
               <div
                 key={i}
                 onClick={() => {
