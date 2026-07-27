@@ -5,11 +5,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Import OAuth token getter — reads live token from memory or .env
+def _get_token() -> str:
+    try:
+        from auth.oauth import get_current_token
+        return get_current_token() or ""
+    except ImportError:
+        return os.getenv("SWIGGY_ACCESS_TOKEN", "")
+
 class SwiggyMCPClient:
     def __init__(self, server_url: str):
         self.server_url = server_url
-        self.token = os.getenv("SWIGGY_ACCESS_TOKEN", "")
         self.call_id = 0
+
+    @property
+    def token(self) -> str:
+        """Always fetch the latest token — picks up new OAuth tokens automatically."""
+        return _get_token()
+
 
     async def call_tool(
         self, 

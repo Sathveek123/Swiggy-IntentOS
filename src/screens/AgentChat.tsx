@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, Sparkles, Terminal, ArrowRight, Bot, CheckCircle2, ArrowLeft, Star, Clock } from 'lucide-react';
+import { Send, Mic, Sparkles, Terminal, ArrowRight, Bot, CheckCircle2, ArrowLeft, Star, Clock, Link2, Unlink } from 'lucide-react';
 import { sendAgentChatMessage, AgentChatMessage } from '../services/backendClient';
 import { resolveUserSituation } from '../services/intentEngine';
 import { useLifeOSStore } from '../store/useLifeOSStore';
@@ -23,7 +23,10 @@ const PRESET_PROMPTS = [
 
 export const AgentChat: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setPlan, addToCart } = useLifeOSStore();
+  const [swiggyConnected, setSwiggyConnected] = useState(false);
+  const [connectingOAuth, setConnectingOAuth] = useState(false);
   const [messages, setMessages] = useState<ChatTurn[]>([
     {
       id: "msg_init",
@@ -35,6 +38,24 @@ export const AgentChat: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if Swiggy OAuth just completed (Swiggy redirected back with ?oauth=success)
+  useEffect(() => {
+    const oauthResult = searchParams.get('oauth');
+    if (oauthResult === 'success') {
+      setSwiggyConnected(true);
+      setMessages(prev => [...prev, {
+        id: 'oauth_success',
+        role: 'assistant',
+        content: '🎉 Swiggy account connected! I now have access to your real Swiggy addresses, restaurants, and cart. Try asking me anything!'
+      }]);
+    }
+    // Check backend auth status
+    fetch('http://localhost:8000/api/auth/status')
+      .then(r => r.json())
+      .then(data => setSwiggyConnected(data.connected))
+      .catch(() => {}); // Backend offline = Vercel demo mode, that's fine
+  }, [searchParams]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -188,9 +209,43 @@ export const AgentChat: React.FC = () => {
             </div>
           </div>
 
-          <span className="text-[11px] bg-[#1C1C1E] text-white font-bold px-2.5 py-1 rounded-full">
-            Anthropic Agent
-          </span>
+          {/* Swiggy OAuth Connection Status + Button */}
+          <div className="flex items-center gap-2">
+            {swiggyConnected ? (
+              <span className="text-[10px] bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Swiggy Live
+              </span>
+            ) : (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                disabled={connectingOAuth}
+                onClick={async () => {
+                  setConnectingOAuth(true);
+                  try {
+                    const res = await fetch('http://localhost:8000/api/auth/start');
+                    const data = await res.json();
+                    if (data.authorize_url) {
+                      // Open Swiggy OAuth login in same tab so callback redirects back here
+                      window.location.href = data.authorize_url;
+                    }
+                  } catch {
+                    // Backend offline — show instructions
+                    setMessages(prev => [...prev, {
+                      id: `oauth_info_${Date.now()}`,
+                      role: 'assistant',
+                      content: '🔗 To connect real Swiggy MCP:\n\n1. Start the backend: cd backend && python main.py\n2. Visit http://localhost:8000/api/auth/start\n3. Complete Swiggy Phone + OTP login\n4. You\'ll be redirected back here automatically.\n\nFor the demo, the AI intent engine is running locally without a token.'
+                    }]);
+                  } finally {
+                    setConnectingOAuth(false);
+                  }
+                }}
+                className="text-[10px] bg-[#FC8019] hover:bg-[#E5700F] text-white font-bold px-2.5 py-1 rounded-full flex items-center gap-1 transition-all cursor-pointer"
+              >
+                <Link2 className="w-3 h-3" />
+                {connectingOAuth ? 'Connecting...' : 'Connect Swiggy'}
+              </motion.button>
+            )}
+          </div>
         </div>
 
         {/* Preset Chips */}
