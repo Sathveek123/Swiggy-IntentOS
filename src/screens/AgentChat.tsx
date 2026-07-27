@@ -28,7 +28,7 @@ export const AgentChat: React.FC = () => {
     {
       id: "msg_init",
       role: "assistant",
-      content: "Hello Sathveek! I am your Swiggy LifeOS AI Agent. I can execute real-time tools across Swiggy Food, Instamart, and Dineout MCP servers. What situation would you like me to coordinate?",
+      content: "Hey! 👋 I'm your Swiggy LifeOS AI Agent powered by Anthropic Claude.\n\nYou can ask me anything — say hi, tell me what you're craving, or share a life situation:\n\n• \"I have ₹300, best pancakes near me?\"\n• \"Plan birthday dinner for 10 people under ₹5000\"\n• \"I just came from the gym, need protein\"\n• \"I have 8000 rupees to feed 50 stray dogs\"\n\nI'll coordinate Swiggy Food 🍽️, Instamart 🛒 and Dineout 🍽️ together in one plan.",
     }
   ]);
   const [inputText, setInputText] = useState("");

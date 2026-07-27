@@ -24,25 +24,25 @@ export const LIFE_MODULES: ModuleCard[] = [
   {
     key: "survival_mode",
     title: "Student Survival Mode",
-    subtitle: "Max calories per rupee optimization under ₹100 limit.",
+    subtitle: "Max calories per rupee optimization under ₹200 limit.",
     icon: Zap,
     persona: "College Students",
     color: "#FC8019",
     bgColor: "#FFF4EC",
-    image: IMAGES.dosa,
-    sampleDish: "Set Dosa + Parle-G",
+    image: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&auto=format&fit=crop&q=80",
+    sampleDish: "Set Dosa + Sambar + Parle-G",
     time: "15 mins",
-    savings: "₹25 Saved"
+    savings: "₹35 Saved"
   },
   {
     key: "kid_mood",
     title: "Kid Mood Menu",
-    subtitle: "Visual emotion-based food discovery for kids & parents.",
+    subtitle: "Emotion-based food discovery for kids & parents.",
     icon: Smile,
     persona: "Kids & Parents",
     color: "#22C55E",
     bgColor: "#F0FFF4",
-    image: IMAGES.pizza,
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80",
     sampleDish: "Cheese Pizza + Lava Cake",
     time: "20 mins",
     savings: "₹80 Saved"
@@ -50,12 +50,12 @@ export const LIFE_MODULES: ModuleCard[] = [
   {
     key: "dopamine_engine",
     title: "Taste Discovery",
-    subtitle: "15% cuisine variation breaking monotonous reordering.",
+    subtitle: "Break monotonous reordering with 15% cuisine variation.",
     icon: Activity,
     persona: "Working Professionals",
     color: "#7C3AED",
     bgColor: "#F3E8FF",
-    image: IMAGES.biryani,
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop&q=80",
     sampleDish: "Hyderabadi Chicken Biryani",
     time: "25 mins",
     savings: "₹142 Saved"
@@ -63,12 +63,12 @@ export const LIFE_MODULES: ModuleCard[] = [
   {
     key: "health_goals",
     title: "NutriGoal Engine",
-    subtitle: "45g Protein Muscle Recovery & Macro Goal Tracker.",
+    subtitle: "Macro tracking · Protein Recovery · AI Meal Plans.",
     icon: Heart,
     persona: "Fitness & Health",
     color: "#059669",
     bgColor: "#ECFDF5",
-    image: IMAGES.proteinBowl,
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80",
     sampleDish: "Grilled Protein Bowl + Shake",
     time: "22 mins",
     savings: "₹110 Saved"
@@ -76,12 +76,12 @@ export const LIFE_MODULES: ModuleCard[] = [
   {
     key: "emotion_commerce",
     title: "Mood Companion",
-    subtitle: "Treats food as emotional medicine & mood comfort.",
+    subtitle: "Food as emotional medicine & comfort when you need it most.",
     icon: Sparkles,
     persona: "Emotional Comfort",
     color: "#BE185D",
     bgColor: "#FFF1F2",
-    image: IMAGES.soup,
+    image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&auto=format&fit=crop&q=80",
     sampleDish: "Manchow Soup + Ginger Tea",
     time: "18 mins",
     savings: "₹45 Saved"
@@ -89,12 +89,12 @@ export const LIFE_MODULES: ModuleCard[] = [
   {
     key: "celebration_os",
     title: "Celebration OS",
-    subtitle: "Cross-service: Food + Instamart Cake + Dineout in 1 plan.",
+    subtitle: "Cross-service: Swiggy Food + Instamart Cake + Dineout in 1 plan.",
     icon: Star,
     persona: "Events & Gifting",
     color: "#F59E0B",
     bgColor: "#FEF3C7",
-    image: IMAGES.thali,
+    image: "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&auto=format&fit=crop&q=80",
     sampleDish: "Belgian Cake + Royal Feast",
     time: "30 mins",
     savings: "₹250 Saved"

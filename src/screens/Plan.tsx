@@ -66,13 +66,13 @@ export const Plan: React.FC = () => {
 
         {/* Pillar 3 & 4: Explainability & Trust Layer Badge */}
         <ExplainabilityBadge
-          confidence={96}
+          confidence={Math.min(99, Math.round(70 + (planData.food.rating || 4.5) * 5))}
           reasons={[
-            `Fits within your ₹${budget} budget limit (₹${totalEstimate} total)`,
-            `High 4.7★ hygiene & consistency score at ${planData.food.restaurant}`,
-            `Fast ${planData.food.deliveryTime} delivery route to Indiranagar`,
-            `Saves ₹${planData.savings} with Swiggy One bundle optimization`,
-            `Matches user preference history for ${selectedChip || 'group orders'}`
+            `Fits within your ₹${budget} budget limit — total cost ₹${totalEstimate}`,
+            `${planData.food.restaurant} has a ${planData.food.rating ?? 4.7}★ rating for hygiene & consistency`,
+            `Estimated arrival in ${planData.food.deliveryTime} to your saved location`,
+            planData.savings > 0 ? `Saves ₹${planData.savings} with Swiggy One bundle optimization` : `Optimized selection from live menu availability`,
+            `Instamart essentials (${planData.instamart.items[0]?.name ?? "Quick items"}) in ${planData.instamart.deliveryTime}`
           ]}
         />
 

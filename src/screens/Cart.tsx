@@ -45,6 +45,42 @@ export const Cart: React.FC = () => {
     navigate('/summary');
   };
 
+  // Empty cart state
+  if (cartItems.length === 0) {
+    return (
+      <div className="w-full max-w-[430px] mx-auto min-h-screen bg-[#FAFAF8] flex flex-col items-center justify-center p-5 border-x border-[#E8E8E8] shadow-sm relative pb-28">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center text-center px-6"
+        >
+          <div className="w-20 h-20 rounded-full bg-[#FFF4EC] flex items-center justify-center mb-5 border-2 border-[#FC8019]/30">
+            <span className="text-4xl">🛒</span>
+          </div>
+          <h2 className="text-xl font-extrabold text-[#1C1C1E] mb-2">Your Cart is Empty</h2>
+          <p className="text-sm text-[#6B7280] font-normal leading-relaxed mb-6">
+            Explore LifeOS modules and let AI plan your perfect Swiggy order.
+          </p>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/home')}
+            className="w-full bg-[#FC8019] hover:bg-[#E5700F] text-white font-extrabold text-sm h-12 rounded-2xl shadow-pill flex items-center justify-center gap-2 transition-all cursor-pointer mb-3"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Start a LifePlan</span>
+          </motion.button>
+          <button
+            onClick={() => navigate('/modules')}
+            className="w-full bg-white border border-[#E8E8E8] text-[#1C1C1E] font-bold text-sm h-12 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <span>Explore All 6 Modules</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-[430px] mx-auto min-h-screen bg-[#FAFAF8] flex flex-col justify-between p-5 border-x border-[#E8E8E8] shadow-sm relative pb-32">
       <div>
