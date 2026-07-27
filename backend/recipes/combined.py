@@ -32,13 +32,13 @@ async def execute_combined_recipe(intent: Dict[str, Any]) -> Dict[str, Any]:
     address_id = "home_addr_001"
     try:
         addresses_res = await food_client.get_addresses()
-        result["mcp_tools_called"].append("get_addresses ✅")
+        result["mcp_tools_called"].append("get_addresses [OK]")
         address_list = addresses_res.get("data", [])
         if address_list:
             home_addr = next((a for a in address_list if a.get("label") == "Home"), address_list[0])
             address_id = home_addr.get("id") or home_addr.get("addressId") or address_id
     except Exception:
-        result["mcp_tools_called"].append("get_addresses (simulated) ⚡")
+        result["mcp_tools_called"].append("get_addresses (simulated)")
 
     # --- STEP 2: Budget-tailored dynamic item generation ---
     if budget <= 150:
@@ -117,25 +117,25 @@ async def execute_combined_recipe(intent: Dict[str, Any]) -> Dict[str, Any]:
     food_query = intent.get("food_query", "biryani")
     try:
         res = await food_client.search_restaurants(address_id, food_query)
-        result["mcp_tools_called"].append("search_restaurants ✅")
+        result["mcp_tools_called"].append("search_restaurants [OK]")
         rests = res.get("data", {}).get("restaurants", [])
         if rests:
             food_restaurant = rests[0].get("name", food_restaurant)
     except Exception:
-        result["mcp_tools_called"].append("search_restaurants (mock) ⚡")
+        result["mcp_tools_called"].append("search_restaurants (mock)")
 
     grocery_query = intent.get("grocery_query", "drinks")
     try:
         await im_client.search_products(address_id, grocery_query)
-        result["mcp_tools_called"].append("search_products ✅")
+        result["mcp_tools_called"].append("search_products [OK]")
     except Exception:
-        result["mcp_tools_called"].append("search_products (mock) ⚡")
+        result["mcp_tools_called"].append("search_products (mock)")
 
     try:
         await dineout_client.get_available_slots("r_dine_1", "2026-07-25", intent.get("party_size", 2))
-        result["mcp_tools_called"].append("get_available_slots ✅")
+        result["mcp_tools_called"].append("get_available_slots [OK]")
     except Exception:
-        result["mcp_tools_called"].append("get_available_slots (mock) ⚡")
+        result["mcp_tools_called"].append("get_available_slots (mock)")
 
     result["food"] = {
         "restaurant": food_restaurant,
