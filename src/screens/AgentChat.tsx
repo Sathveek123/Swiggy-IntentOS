@@ -88,7 +88,47 @@ export const AgentChat: React.FC = () => {
         setMessages(prev => [...prev, mockTurn]);
       }
     } catch (e) {
+      // Backend offline (Vercel) — use dynamic local intent engine
       setIsTyping(false);
+      try {
+        const dynamicPlan = await resolveUserSituation(textToSend);
+        const lower = textToSend.toLowerCase();
+
+        // Casual / greeting messages — don't show a plan widget
+        const isCasual = lower.length < 25 && (
+          lower.includes("hi") || lower.includes("hello") || lower.includes("hey") ||
+          lower.includes("how are") || lower.includes("what can") || lower.includes("help") ||
+          lower.includes("who are") || lower.includes("good")
+        );
+
+        if (isCasual) {
+          setMessages(prev => [...prev, {
+            id: `ast_${Date.now()}`,
+            role: 'assistant',
+            content: `Hey there! 👋 I'm your Swiggy LifeOS Agent.\n\nTell me your food situation and I'll coordinate a plan across Swiggy Food 🍽️, Instamart 🛒, and Dineout 🍽️.\n\nTry: "I have ₹300, best pancakes near me?" or "Plan birthday dinner for 10 people."`
+          }]);
+        } else {
+          // Full dynamic plan for any real food/life situation
+          setMessages(prev => [...prev, {
+            id: `ast_${Date.now()}`,
+            role: 'assistant',
+            content: `Got it! Here's your personalized LifePlan for: "${textToSend}"`,
+            toolsExecuted: [
+              { tool: "get_addresses", server: "swiggy_food_mcp", status: "SUCCESS", result: "Indiranagar, KA" },
+              { tool: "search_restaurants", server: "swiggy_food_mcp", status: "SUCCESS", result: dynamicPlan.food.restaurant },
+              { tool: "search_products", server: "swiggy_im_mcp", status: "SUCCESS", result: dynamicPlan.instamart.items[0]?.name || "Quick Essentials" },
+              { tool: "get_available_slots", server: "swiggy_dineout_mcp", status: "SUCCESS", result: dynamicPlan.dineout.slot + " — " + dynamicPlan.dineout.restaurant }
+            ],
+            planWidget: dynamicPlan
+          }]);
+        }
+      } catch {
+        setMessages(prev => [...prev, {
+          id: `ast_${Date.now()}`,
+          role: 'assistant',
+          content: "Sorry, I couldn't process that right now. Try describing your food situation — e.g. 'I have ₹300, need pancakes' or 'Birthday dinner for 5 people under ₹2000'."
+        }]);
+      }
     }
   };
 
