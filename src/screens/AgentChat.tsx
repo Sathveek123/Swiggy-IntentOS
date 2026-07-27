@@ -182,16 +182,24 @@ export const AgentChat: React.FC = () => {
                 {msg.content}
 
                 {msg.toolsExecuted && msg.toolsExecuted.length > 0 && (
-                  <div className="mt-3 pt-2.5 border-t border-black/10 text-[11px] space-y-1 font-mono">
-                    <div className="flex items-center gap-1 font-bold text-[#FC8019] text-[10px] uppercase tracking-wider mb-1">
-                      <Terminal className="w-3 h-3" /> Executed Swiggy MCP Tools:
+                  <div className="mt-3 pt-2.5 border-t border-black/10 text-[11px] space-y-1.5 font-sans">
+                    <div className="flex items-center gap-1 font-extrabold text-[#FC8019] text-[10px] uppercase tracking-wider mb-1">
+                      <Sparkles className="w-3 h-3 text-[#FC8019]" /> Multi-Service Swiggy Plan Orchestrated:
                     </div>
-                    {msg.toolsExecuted.map((t, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-[#6B7280]">
-                        <span>⚙️ {t.server}.{t.tool}()</span>
-                        <span className="text-[#22C55E] font-bold">✅ {t.result || 'OK'}</span>
-                      </div>
-                    ))}
+                    {msg.toolsExecuted.map((t, idx) => {
+                      const displayLabel = 
+                        t.tool === 'get_addresses' ? '📍 Delivery Location' :
+                        t.tool === 'search_restaurants' ? '🍽️ Swiggy Food' :
+                        t.tool === 'search_products' ? '🛒 Instamart Quick Commerce' :
+                        t.tool === 'get_available_slots' || t.tool === 'book_table' ? '🍽️ Swiggy Dineout Table' :
+                        `⚡ ${t.server}`;
+                      return (
+                        <div key={idx} className="flex items-center justify-between text-[#4B5563] bg-[#FAFAF8] px-2.5 py-1 rounded-lg border border-[#E8E8E8]">
+                          <span className="font-bold text-[#1C1C1E]">{displayLabel}</span>
+                          <span className="text-[#22C55E] font-extrabold">✓ {t.result || 'Connected'}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

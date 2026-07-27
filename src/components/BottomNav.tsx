@@ -14,7 +14,7 @@ export const BottomNav: React.FC = () => {
   // Exactly 5 clean core tabs tailored for consumer mobile experience
   const tabs = [
     { path: '/home', label: 'Home', icon: HomeIcon },
-    { path: '/modules', label: '15 Modules', icon: LayoutGrid },
+    { path: '/modules', label: 'Modules', icon: LayoutGrid },
     { path: '/agent', label: 'AI Agent', icon: MessageSquare },
     { path: '/dashboard', label: 'AI Health', icon: BrainCircuit },
     { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: totalCartCount }
@@ -28,7 +28,14 @@ export const BottomNav: React.FC = () => {
     <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto z-40 px-3 pb-3 pt-1 pointer-events-none">
       <div className="bg-[#1C1C1E]/95 backdrop-blur-md border border-white/15 rounded-2xl shadow-2xl p-1.5 flex items-center justify-around pointer-events-auto">
         {tabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
+          const isActive = location.pathname === tab.path || (tab.path === '/modules' && (
+            location.pathname.includes('survival') ||
+            location.pathname.includes('kid') ||
+            location.pathname.includes('taste') ||
+            location.pathname.includes('nutri') ||
+            location.pathname.includes('mood') ||
+            location.pathname.includes('celebration')
+          ));
           const Icon = tab.icon;
 
           return (
