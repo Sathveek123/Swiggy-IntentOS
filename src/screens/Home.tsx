@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mic, ArrowRight, Sparkles } from 'lucide-react';
+import { Mic, ArrowRight } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { checkBackendHealth } from '../services/backendClient';
 import { useLifeOSStore } from '../store/useLifeOSStore';
@@ -11,7 +11,6 @@ interface ModuleChip {
   key: string;
   title: string;
   emoji: string;
-  bgColor: string;
   route: string;
   prompt: string;
 }
@@ -22,7 +21,6 @@ const CHIPS: ModuleChip[] = [
     key: 'student-survival',
     title: 'Survive on a budget',
     emoji: '🎒',
-    bgColor: 'bg-[#FEF3C7]',
     route: '/student-survival',
     prompt: 'I have ₹147 left today and I have to survive until tomorrow morning'
   },
@@ -31,7 +29,6 @@ const CHIPS: ModuleChip[] = [
     key: 'kid-mood',
     title: 'Order for my kid',
     emoji: '😄',
-    bgColor: 'bg-[#FCE7F3]',
     route: '/kid-mood',
     prompt: 'My kid is a picky eater refusing vegetables and wants fun food'
   },
@@ -40,7 +37,6 @@ const CHIPS: ModuleChip[] = [
     key: 'taste-discovery',
     title: 'Discover something new',
     emoji: '🍽️',
-    bgColor: 'bg-[#D1FAE5]',
     route: '/taste-discovery',
     prompt: 'I am bored of ordering the same food every week suggest something exciting'
   },
@@ -49,7 +45,6 @@ const CHIPS: ModuleChip[] = [
     key: 'nutri-goal',
     title: 'Eat healthy',
     emoji: '🥗',
-    bgColor: 'bg-[#E0F2FE]',
     route: '/nutri-goal',
     prompt: 'I just finished a workout need 45g protein recovery meal under ₹500'
   },
@@ -58,7 +53,6 @@ const CHIPS: ModuleChip[] = [
     key: 'mood-companion',
     title: 'Mood comfort',
     emoji: '💙',
-    bgColor: 'bg-[#F3E8FF]',
     route: '/mood-companion',
     prompt: 'Feeling super stressed and exhausted need comforting hot meal'
   },
@@ -67,7 +61,6 @@ const CHIPS: ModuleChip[] = [
     key: 'celebration-os',
     title: 'Plan a celebration',
     emoji: '🎂',
-    bgColor: 'bg-[#FEF3C7]',
     route: '/celebration-os',
     prompt: 'Hosting a birthday party dinner for 6 people tonight'
   }
@@ -126,7 +119,7 @@ export const Home: React.FC = () => {
   return (
     <div className="w-full max-w-[430px] mx-auto min-h-screen bg-[#FAFAF8] flex flex-col justify-between border-x border-[#E8E8E8] shadow-sm relative pb-28">
       <div>
-        {/* SECTION 1 — TOP BAR */}
+        {/* TOP BAR */}
         <header className="h-[56px] bg-white border-b border-[#F0F0F0] px-5 flex items-center justify-between sticky top-0 z-40">
           <Logo size="sm" />
           <div className="w-9 h-9 rounded-full bg-[#FC8019] text-white flex items-center justify-center font-extrabold text-xs shadow-pill ring-2 ring-[#FC8019]/20 cursor-pointer">
@@ -134,23 +127,27 @@ export const Home: React.FC = () => {
           </div>
         </header>
 
-        {/* SECTION 2 — GREETING */}
-        <section className="mt-6 px-5">
-          <h1 className="text-[26px] font-extrabold text-[#1C1C1E] tracking-[-0.03em] leading-tight">
+        {/* GREETING SECTION */}
+        <div className="px-5 pt-6 pb-2">
+          {/* Status pill */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-[#22C55E] animate-pulse' : 'bg-[#F59E0B]'}`} />
+            <span className="text-[11px] font-semibold text-[#6B7280] tracking-wide">
+              {backendOnline ? 'MCP Agent Online · Swiggy Builders Club' : 'Demo Mode · Swiggy Builders Club'}
+            </span>
+          </div>
+
+          {/* Greeting */}
+          <h1 className="text-[28px] font-extrabold text-[#1C1C1E] tracking-tight leading-tight">
             {getGreeting()}, Sathveek 👋
           </h1>
-          <p className="text-[15px] text-[#6B7280] font-normal mt-1.5">
+          <p className="text-[15px] text-[#6B7280] font-normal mt-2 leading-relaxed">
             What's your situation today?
           </p>
+        </div>
 
-          <div className="mt-3 inline-flex items-center gap-1.5 bg-[#FFF4EC] text-[#FC8019] text-[11px] font-semibold px-3 py-1 rounded-full border border-[#FC8019]/20">
-            <Sparkles className="w-3 h-3 text-[#FC8019]" />
-            <span>{backendOnline ? '⚡ MCP Agent Online' : '✦ Demo Mode'}</span>
-          </div>
-        </section>
-
-        {/* SECTION 3 — INPUT CARD */}
-        <section className="mt-5 px-5">
+        {/* INPUT CARD */}
+        <section className="mt-4 px-5">
           <form onSubmit={handleSubmit}>
             <div className="bg-white border-[1.5px] border-[#E8E8E8] rounded-[20px] p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] focus-within:border-[#FC8019] focus-within:ring-3 focus-within:ring-[#FC8019]/10 transition-all">
               <textarea
@@ -189,8 +186,8 @@ export const Home: React.FC = () => {
           </form>
         </section>
 
-        {/* SECTION 4 — SITUATION CHIPS */}
-        <section className="mt-7 px-5">
+        {/* SITUATION CHIPS */}
+        <section className="mt-6 px-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
               Pick a situation
@@ -218,7 +215,7 @@ export const Home: React.FC = () => {
                       : 'border-[#E8E8E8] bg-white hover:border-[#FC8019]/60 shadow-[0_1px_4px_rgba(0,0,0,0.03)]'
                   }`}
                 >
-                  <div className={`w-9 h-9 rounded-[10px] ${chip.bgColor} flex items-center justify-center text-lg`}>
+                  <div className="text-[32px] leading-none">
                     {chip.emoji}
                   </div>
 
@@ -232,7 +229,7 @@ export const Home: React.FC = () => {
         </section>
       </div>
 
-      {/* SECTION 5 — BOTTOM STATUS */}
+      {/* FOOTER */}
       <footer className="mt-8 pb-5 text-center">
         <p className="text-[11px] font-normal text-[#C4C4C4]">
           Powered by Swiggy Builders Club · MCP

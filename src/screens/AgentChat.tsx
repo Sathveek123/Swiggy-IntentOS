@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, Sparkles, Terminal, ArrowRight, Bot, CheckCircle2, ArrowLeft, Star, Clock, Link2, Unlink } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Send, Mic, ArrowLeft, CheckCircle2, Link2, Sparkles } from 'lucide-react';
 import { sendAgentChatMessage, AgentChatMessage } from '../services/backendClient';
 import { resolveUserSituation } from '../services/intentEngine';
 import { useLifeOSStore } from '../store/useLifeOSStore';
-import { PlanData, IMAGES } from '../data/mockData';
+import { PlanData } from '../data/mockData';
 
 interface ChatTurn {
   id: string;
@@ -15,10 +15,11 @@ interface ChatTurn {
   planWidget?: PlanData;
 }
 
-const PRESET_PROMPTS = [
-  "Order 2 biryanis & cold drinks under ₹500",
-  "Midnight study coffee + energy bar in 15 mins",
-  "Family dinner: Butter chicken + table for 4 at 8 PM"
+const QUICK_PROMPTS = [
+  "🎒 I have ₹200 left",
+  "😄 Kid wants food",
+  "🥗 Post gym meal",
+  "🎂 Plan birthday"
 ];
 
 export const AgentChat: React.FC = () => {
@@ -39,7 +40,6 @@ export const AgentChat: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Check if Swiggy OAuth just completed (Swiggy redirected back with ?oauth=success)
   useEffect(() => {
     const oauthResult = searchParams.get('oauth');
     if (oauthResult === 'success') {
@@ -50,11 +50,10 @@ export const AgentChat: React.FC = () => {
         content: '🎉 Swiggy account connected! I now have access to your real Swiggy addresses, restaurants, and cart. Try asking me anything!'
       }]);
     }
-    // Check backend auth status
     fetch('http://localhost:8000/api/auth/status')
       .then(r => r.json())
       .then(data => setSwiggyConnected(data.connected))
-      .catch(() => {}); // Backend offline = Vercel demo mode, that's fine
+      .catch(() => {});
   }, [searchParams]);
 
   const scrollToBottom = () => {
@@ -109,13 +108,11 @@ export const AgentChat: React.FC = () => {
         setMessages(prev => [...prev, mockTurn]);
       }
     } catch (e) {
-      // Backend offline (Vercel) — use dynamic local intent engine
       setIsTyping(false);
       try {
         const dynamicPlan = await resolveUserSituation(textToSend);
         const lower = textToSend.toLowerCase();
 
-        // Casual / greeting messages — don't show a plan widget
         const isCasual = lower.length < 25 && (
           lower.includes("hi") || lower.includes("hello") || lower.includes("hey") ||
           lower.includes("how are") || lower.includes("what can") || lower.includes("help") ||
@@ -129,7 +126,6 @@ export const AgentChat: React.FC = () => {
             content: `Hey there! 👋 I'm your Swiggy LifeOS Agent.\n\nTell me your food situation and I'll coordinate a plan across Swiggy Food 🍽️, Instamart 🛒, and Dineout 🍽️.\n\nTry: "I have ₹300, best pancakes near me?" or "Plan birthday dinner for 10 people."`
           }]);
         } else {
-          // Full dynamic plan for any real food/life situation
           setMessages(prev => [...prev, {
             id: `ast_${Date.now()}`,
             role: 'assistant',
@@ -172,9 +168,9 @@ export const AgentChat: React.FC = () => {
       };
     } else {
       setTimeout(() => {
-        setInputText("Order 2 chicken biryanis and cold drinks under ₹500");
+        setInputText("I have ₹300 rupees with me I need to eat best pancake near the store");
         setIsListening(false);
-      }, 1500);
+      }, 1200);
     }
   };
 
@@ -188,32 +184,28 @@ export const AgentChat: React.FC = () => {
   return (
     <div className="w-full max-w-[430px] mx-auto min-h-screen bg-[#FAFAF8] flex flex-col justify-between p-4 border-x border-[#E8E8E8] shadow-sm relative pb-28">
       <div>
-        {/* Header */}
-        <div className="flex items-center justify-between pt-2 pb-3 border-b border-[#E8E8E8] mb-3">
-          <div className="flex items-center gap-2">
+        {/* WHITE TOP BAR (FIX 4) */}
+        <header className="flex items-center justify-between pt-1 pb-3 border-b border-[#F0F0F0] mb-3 bg-white -mx-4 px-4 sticky top-0 z-40">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => navigate('/home')}
-              className="w-8 h-8 rounded-full bg-white border border-[#E8E8E8] flex items-center justify-center text-[#1C1C1E] hover:bg-[#F5F5F3]"
+              className="w-8 h-8 rounded-full bg-[#FAFAF8] border border-[#E8E8E8] flex items-center justify-center text-[#1C1C1E] hover:bg-[#F5F5F3] cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-[#FC8019] text-white flex items-center justify-center font-bold shadow-pill">
-              <Bot className="w-4.5 h-4.5" />
-            </div>
             <div>
-              <h2 className="font-extrabold text-sm text-[#1C1C1E]">Swiggy Agent Chat</h2>
-              <p className="text-[10px] text-[#22C55E] font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-                Live Swiggy MCP Connected
+              <h2 className="font-extrabold text-[16px] text-[#1C1C1E] tracking-tight">Swiggy Agent Chat</h2>
+              <p className="text-[11px] text-[#22C55E] font-medium flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+                Live MCP Connected
               </p>
             </div>
           </div>
 
-          {/* Swiggy OAuth Connection Status + Button */}
           <div className="flex items-center gap-2">
             {swiggyConnected ? (
-              <span className="text-[10px] bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Swiggy Live
+              <span className="text-[11px] font-semibold bg-[#F0FFF4] text-[#22C55E] border border-[#22C55E]/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> ✓ Connected
               </span>
             ) : (
               <motion.button
@@ -225,164 +217,150 @@ export const AgentChat: React.FC = () => {
                     const res = await fetch('http://localhost:8000/api/auth/start');
                     const data = await res.json();
                     if (data.authorize_url) {
-                      // Open Swiggy OAuth login in same tab so callback redirects back here
                       window.location.href = data.authorize_url;
                     }
                   } catch {
-                    // Backend offline — show instructions
                     setMessages(prev => [...prev, {
                       id: `oauth_info_${Date.now()}`,
                       role: 'assistant',
-                      content: '🔗 To connect real Swiggy MCP:\n\n1. Start the backend: cd backend && python main.py\n2. Visit http://localhost:8000/api/auth/start\n3. Complete Swiggy Phone + OTP login\n4. You\'ll be redirected back here automatically.\n\nFor the demo, the AI intent engine is running locally without a token.'
+                      content: '🔗 To connect real Swiggy MCP:\n\n1. Start the backend: cd backend && python main.py\n2. Visit http://localhost:8000/api/auth/start\n3. Complete Swiggy Phone + OTP login\n4. You\'ll be redirected back here automatically.'
                     }]);
                   } finally {
                     setConnectingOAuth(false);
                   }
                 }}
-                className="text-[10px] bg-[#FC8019] hover:bg-[#E5700F] text-white font-bold px-2.5 py-1 rounded-full flex items-center gap-1 transition-all cursor-pointer"
+                className="text-[11px] bg-[#FC8019] hover:bg-[#E5700F] text-white font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 transition-all cursor-pointer"
               >
                 <Link2 className="w-3 h-3" />
                 {connectingOAuth ? 'Connecting...' : 'Connect Swiggy'}
               </motion.button>
             )}
           </div>
-        </div>
+        </header>
 
-        {/* Preset Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-3 no-scrollbar">
-          {PRESET_PROMPTS.map((prompt, i) => (
-            <button
-              key={i}
-              onClick={() => handleSend(prompt)}
-              className="bg-white border border-[#E8E8E8] hover:border-[#FC8019] text-[#1C1C1E] text-[11px] font-medium px-3 py-1.5 rounded-full shrink-0 shadow-2xs transition-all"
-            >
-              💬 {prompt}
-            </button>
-          ))}
-        </div>
-
-        {/* Messages */}
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
+        {/* MESSAGES SCROLL AREA */}
+        <div className="space-y-3.5 max-h-[58vh] overflow-y-auto pr-1 no-scrollbar">
           {messages.map((msg) => (
-            <div
+            <motion.div
               key={msg.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
-                className={`
-                  max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed shadow-soft
-                  ${msg.role === 'user'
-                    ? 'bg-[#FC8019] text-white rounded-br-none font-medium'
-                    : 'bg-white border border-[#E8E8E8] text-[#1C1C1E] rounded-bl-none'
-                  }
-                `}
+                className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-[#FC8019] text-white rounded-br-none shadow-xs font-semibold'
+                    : 'bg-white border border-[#E8E8E8] text-[#1C1C1E] rounded-bl-none shadow-xs'
+                }`}
               >
-                {msg.content}
+                <p className="whitespace-pre-line">{msg.content}</p>
 
+                {/* MCP Executed Tools Breakdown */}
                 {msg.toolsExecuted && msg.toolsExecuted.length > 0 && (
                   <div className="mt-3 pt-2.5 border-t border-black/10 text-[11px] space-y-1.5 font-sans">
-                    <div className="flex items-center gap-1 font-extrabold text-[#FC8019] text-[10px] uppercase tracking-wider mb-1">
-                      <Sparkles className="w-3 h-3 text-[#FC8019]" /> Multi-Service Swiggy Plan Orchestrated:
+                    <div className="flex items-center gap-1 font-extrabold text-[#FC8019]">
+                      <Sparkles className="w-3 h-3" />
+                      <span>Swiggy MCP Tools Executed:</span>
                     </div>
-                    {msg.toolsExecuted.map((t, idx) => {
-                      const displayLabel = 
-                        t.tool === 'get_addresses' ? '📍 Delivery Location' :
-                        t.tool === 'search_restaurants' ? '🍽️ Swiggy Food' :
-                        t.tool === 'search_products' ? '🛒 Instamart Quick Commerce' :
-                        t.tool === 'get_available_slots' || t.tool === 'book_table' ? '🍽️ Swiggy Dineout Table' :
-                        `⚡ ${t.server}`;
-                      return (
-                        <div key={idx} className="flex items-center justify-between text-[#4B5563] bg-[#FAFAF8] px-2.5 py-1 rounded-lg border border-[#E8E8E8]">
-                          <span className="font-bold text-[#1C1C1E]">{displayLabel}</span>
-                          <span className="text-[#22C55E] font-extrabold">✓ {t.result || 'Connected'}</span>
-                        </div>
-                      );
-                    })}
+                    {msg.toolsExecuted.map((t, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-[10px] text-[#4B5563]">
+                        <span className="font-semibold">{t.server}: <code className="bg-black/5 px-1 py-0.5 rounded text-[#1C1C1E]">{t.tool}</code></span>
+                        <span className="font-bold text-[#22C55E]">{t.result || t.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Inline LifePlan Widget Component */}
+                {msg.planWidget && (
+                  <div className="mt-3 pt-3 border-t border-[#E8E8E8] bg-[#FAFAF8] p-3 rounded-xl border border-[#E8E8E8]">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-extrabold text-[#FC8019] uppercase tracking-wider">
+                        Orchestrated LifePlan
+                      </span>
+                      <span className="text-[11px] font-extrabold text-[#1C1C1E]">
+                        ₹{msg.planWidget.totalEstimate}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 text-[11px] text-[#4B5563] font-medium mb-3">
+                      <div>🍽️ <strong>Food:</strong> {msg.planWidget.food.restaurant} (₹{msg.planWidget.food.total})</div>
+                      <div>🛒 <strong>Instamart:</strong> {msg.planWidget.instamart.items[0]?.name || "Essentials"} (₹{msg.planWidget.instamart.total})</div>
+                      <div>📍 <strong>Dineout:</strong> Table for {msg.planWidget.dineout.tableFor} at {msg.planWidget.dineout.restaurant}</div>
+                    </div>
+
+                    <button
+                      onClick={() => handleApplyWidgetToCart(msg.planWidget!)}
+                      className="w-full bg-[#FC8019] text-white text-[11px] font-bold py-2 rounded-lg hover:bg-[#E5700F] transition-all flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <span>Stage Plan to Cart</span>
+                    </button>
                   </div>
                 )}
               </div>
-
-              {/* Visual MCP Response Widget with Food Thumbnails */}
-              {msg.planWidget && (
-                <div className="mt-2.5 w-full bg-white border border-[#FC8019]/40 rounded-2xl p-3.5 shadow-soft">
-                  <div className="flex items-center justify-between border-b border-[#F0F0F0] pb-2 mb-2">
-                    <span className="text-xs font-bold text-[#1C1C1E] flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-[#FC8019]" />
-                      Swiggy MCP Widget Response
-                    </span>
-                    <span className="text-[11px] font-extrabold text-[#FC8019]">₹{msg.planWidget.totalEstimate} Total</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 my-2">
-                    <img
-                      src={msg.planWidget.food.image || IMAGES.biryani}
-                      alt="Food"
-                      className="w-12 h-12 rounded-xl object-cover border border-[#E8E8E8] shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-extrabold text-xs text-[#1C1C1E]">{msg.planWidget.food.restaurant}</h4>
-                      <p className="text-[11px] text-[#6B7280] font-medium mt-0.5">
-                        {msg.planWidget.food.items.length} dishes · {msg.planWidget.food.deliveryTime}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleApplyWidgetToCart(msg.planWidget!)}
-                    className="w-full mt-2 bg-[#FC8019] hover:bg-[#E5700F] text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-pill transition-all"
-                  >
-                    <span>Load LifePlan to Cart</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
+            </motion.div>
           ))}
 
           {isTyping && (
-            <div className="flex items-center gap-2 text-xs text-[#6B7280] font-medium bg-white border border-[#E8E8E8] px-3.5 py-2 rounded-2xl rounded-bl-none w-fit shadow-xs">
-              <Bot className="w-4 h-4 text-[#FC8019] animate-spin" />
-              <span>Orchestrating Swiggy MCP tools...</span>
-            </div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-xs text-[#6B7280]">
+              <div className="w-6 h-6 rounded-full bg-[#FC8019]/20 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-[#FC8019] animate-spin" />
+              </div>
+              <span>Swiggy MCP Agent is orchestrating tools...</span>
+            </motion.div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
+
+        {/* 4 QUICK PROMPT SUGGESTION CHIPS (FIX 4) */}
+        <div className="mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {QUICK_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => handleSend(prompt)}
+                className="bg-white border border-[#E8E8E8] rounded-xl px-3 py-2.5 text-left text-[12px] font-medium text-[#1C1C1E] hover:border-[#FC8019] hover:bg-[#FFF9F5] transition-all cursor-pointer shadow-2xs"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-center text-[11px] text-[#C4C4C4] mt-3">
+            Powered by Claude + Swiggy MCP
+          </p>
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="pt-2">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex items-center gap-2 bg-white border border-[#E8E8E8] rounded-full p-1.5 pl-4 shadow-soft focus-within:border-[#FC8019]"
-        >
+      {/* WHITE BOTTOM INPUT BAR (FIX 4) */}
+      <div className="fixed bottom-16 left-0 right-0 max-w-[430px] mx-auto bg-white border-t border-[#F0F0F0] p-3 z-40 shadow-md">
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleVoiceInput}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+              isListening ? 'bg-[#FC8019] text-white animate-pulse' : 'bg-[#F5F5F3] text-[#6B7280] hover:bg-[#E8E8E8]'
+            }`}
+          >
+            <Mic className="w-4 h-4" />
+          </button>
+
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Talk to Swiggy MCP Agent..."
-            className="flex-1 bg-transparent text-xs text-[#1C1C1E] outline-none placeholder-[#9CA3AF]"
+            className="flex-1 bg-[#F5F5F3] text-[#1C1C1E] text-xs px-4 py-2.5 rounded-full outline-none focus:ring-2 focus:ring-[#FC8019]/30 transition-all font-medium"
           />
-
-          <button
-            type="button"
-            onClick={handleVoiceInput}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-              isListening ? 'bg-[#FFF4EC] text-[#FC8019] border border-[#FC8019]' : 'text-[#6B7280] hover:bg-[#F5F5F3]'
-            }`}
-          >
-            <Mic className={`w-4 h-4 ${isListening ? 'animate-bounce text-[#FC8019]' : ''}`} />
-          </button>
 
           <button
             type="submit"
             disabled={!inputText.trim()}
-            className="w-8 h-8 rounded-full bg-[#FC8019] text-white flex items-center justify-center disabled:opacity-40 shadow-pill transition-all"
+            className="w-9 h-9 rounded-full bg-[#FC8019] hover:bg-[#E5700F] text-white flex items-center justify-center transition-all cursor-pointer shrink-0 disabled:opacity-40"
           >
-            <Send className="w-3.5 h-3.5" />
+            <Send className="w-4 h-4" />
           </button>
         </form>
       </div>

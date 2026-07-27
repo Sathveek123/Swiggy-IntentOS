@@ -203,7 +203,7 @@ export const LifeModules: React.FC = () => {
                   </p>
 
                   <div className="mt-3 pt-2.5 border-t border-[#F0F0F0] flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-[#FC8019] uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">
                       Single-Turn Intent Staged
                     </span>
 

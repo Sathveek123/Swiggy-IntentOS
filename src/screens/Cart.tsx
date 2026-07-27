@@ -54,8 +54,8 @@ export const Cart: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center text-center px-6"
         >
-          <div className="w-20 h-20 rounded-full bg-[#FFF4EC] flex items-center justify-center mb-5 border-2 border-[#FC8019]/30">
-            <span className="text-4xl">🛒</span>
+          <div className="w-20 h-20 rounded-full bg-[#FFF4EC] flex items-center justify-center mb-5 border border-[#FC8019]/20 shadow-xs">
+            <span className="text-4xl text-[#FC8019]">🛒</span>
           </div>
           <h2 className="text-xl font-extrabold text-[#1C1C1E] mb-2">Your Cart is Empty</h2>
           <p className="text-sm text-[#6B7280] font-normal leading-relaxed mb-6">
